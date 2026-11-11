@@ -1,0 +1,67 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam linetype ortho
+hide circle
+
+package "Диаграмма компонентов новостного сервиса" {
+    
+    ' Компонент авторизации
+    component "Модуль авторизации" <<library>> as AuthLib {
+        [IAuthorizable] as IAuth
+    }
+    
+    ' Компонент управления пользователями
+    component "Управление пользователями" <<library>> as UserLib {
+        [Person]
+        [Guest]
+        [User]
+        [Journalist]
+        [Admin]
+        [Role]
+    }
+    
+    ' Компонент контента
+    component "Ядро контента" <<library>> as ContentLib {
+        [IPublishable] as IPub
+        [ICommentable] as ICom
+        [News]
+        [Comment]
+        [Category]
+        [Tag]
+    }
+    
+    ' Конкретная СУБД как физическое хранилище (согласно методичке: <<file>>)
+    component "PostgreSQL Database" <<file>> as PostgresDB {
+        [Таблица пользователей] <<table>>
+        [Таблица новостей] <<table>>
+        [Таблица комментариев] <<table>>
+        [Таблица категорий] <<table>>
+        [Таблица тегов] <<table>>
+        [Таблица ролей] <<table>>
+    }
+}
+
+' Исполняемые компоненты (точки входа)
+component "Шлюз Web API" <<executable>> as WebAPI
+component "Адаптер соцсетей" <<executable>> as SocialAdapter
+component "Диспетчер уведомлений" <<executable>> as NotifyDispatcher
+
+' WebAPI требует интерфейсы от библиотек
+WebAPI -down-> IAuth : использует
+WebAPI -down-> IPub : использует
+WebAPI -down-> ICom : использует
+
+' Библиотеки реализуют интерфейсы
+UserLib -up-|> IAuth : реализует
+ContentLib -up-|> IPub : реализует
+ContentLib -up-|> ICom : реализует
+
+' Связь с конкретной СУБД
+UserLib ..> PostgresDB : хранит данные
+ContentLib ..> PostgresDB : хранит данные
+
+' Внешние адаптеры
+SocialAdapter ..> IPub : подписан\n(автопубликация)
+NotifyDispatcher ..> IAuth : использует\n(рассылка)
+
+@enduml

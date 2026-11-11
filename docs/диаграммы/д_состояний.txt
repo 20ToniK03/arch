@@ -1,0 +1,20 @@
+@startuml
+skinparam linetype ortho
+hide empty description
+
+' Начальное состояние
+[*] --> Draft : Создание
+
+state "Создана" as Draft
+state "Опубликована" as Published
+state "Отредактирована" as Edited
+state "Удалена" as Deleted
+
+' Переходы
+Draft --> Published : Опубликовали
+Published --> Edited : Отредактировали
+Edited --> Published : Снова опубликовали
+Published --> Deleted : Удалили
+Deleted --> [*]
+
+@enduml

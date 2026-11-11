@@ -1,0 +1,42 @@
+@startuml
+skinparam nodeStyle frame
+
+node "Application Server" <<processor>> as AppServer {
+    artifact "news-service.jar" <<executable>> as JarFile
+    artifact "application.yml" <<file>> as Config
+    
+    node "Docker Container" <<device>> as Docker {
+        component "Spring Boot App" as SpringApp
+    }
+}
+
+database "PostgreSQL DB" <<device>> as DBNode {
+    artifact "schema.sql" <<source>> as Schema
+}
+
+node "Client Devices" {
+    node "Desktop Browser" <<device>> as Browser
+    node "Mobile Phone" <<device>> as Mobile
+}
+
+node "External Services" {
+    node "Social Networks API" <<net>> as SocialNet
+    node "SMTP/Messenger Gateway" <<modem>> as MsgGateway
+}
+
+cloud "CDN / Load Balancer" <<net>> as CDN
+
+' Связи развертывания
+Browser --> CDN : HTTPS
+Mobile --> CDN : HTTPS
+CDN --> AppServer : Route
+
+SpringApp --> DBNode : JDBC/TCPФ
+JarFile -[hidden]-> SpringApp
+Config -[hidden]-> SpringApp
+
+AppServer --> SocialNet : REST/Webhook\n(Автопубликация)
+AppServer --> MsgGateway : SMTP/API\n(Рассылка)
+
+
+@enduml

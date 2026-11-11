@@ -1,0 +1,73 @@
+### Лабораторная работа №1 - проверка API читателя (GET)
+### Перед запуском откройте lab1/src/main/java/view/WebAppServer.java и нажмите Run.
+@host = http://localhost:8091
+
+### Все новости
+GET {{host}}/reader/news/all
+
+### Новость по идентификатору
+GET {{host}}/reader/news/1
+
+### Новость по некорректному идентификатору (ожидается 404/400)
+GET {{host}}/reader/news/abc
+
+### Новости за последнюю неделю
+GET {{host}}/reader/news/last_week
+
+### Поиск по ключевым словам
+GET {{host}}/reader/news/search?keywords=java
+
+### Поиск без ключевых слов (ожидается 400)
+GET {{host}}/reader/news/search
+
+### Новости региона
+GET {{host}}/reader/news/region?region=Москва
+
+### Список категорий
+GET {{host}}/reader/categories
+
+### Добавить в закладки (POST)
+POST {{host}}/reader/news/1/bookmark
+
+### Оставить комментарий (POST)
+POST {{host}}/reader/comments?newsId=1&author=Иван&text=Отличная%20новость
+
+### Редактировать комментарий (PUT)
+PUT {{host}}/reader/comments/1?text=Исправленный%20текст
+
+### Удалить комментарий (DELETE)
+DELETE {{host}}/reader/comments/1
+
+### ===== API создателя =====
+
+### Создать новость (POST)
+POST {{host}}/creator/news?title=Новая%20новость&text=Текст%20новости
+
+### Изменить новость (PUT)
+PUT {{host}}/creator/news/1?title=Обновлённый%20заголовок&text=Новый%20текст
+
+### Удалить новость (DELETE)
+DELETE {{host}}/creator/news/1
+
+### Прикрепить медиафайл (POST)
+POST {{host}}/creator/news/1/media?url=https://example.com/photo.jpg
+
+### Добавить тег (POST)
+POST {{host}}/creator/news/1/tags?tag=java
+
+### Ответить на комментарий (POST)
+POST {{host}}/creator/comments/1/reply?text=Спасибо%20за%20отзыв
+
+### ===== API администратора =====
+
+### Список пользователей (GET)
+GET {{host}}/admin/users
+
+### Заблокировать пользователя (POST)
+POST {{host}}/admin/users/1/block
+
+### Назначить роль (PUT)
+PUT {{host}}/admin/users/1/role?role=ADMIN
+
+### Модерировать комментарий (POST)
+POST {{host}}/admin/comments/1/moderate?action=approve

@@ -1,0 +1,127 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+interface IAuthorizable {
+    + login(login: String, password: String): boolean
+    + logout(): void
+    + isAuthorized(): boolean
+}
+
+interface ICommentable {
+    + addComment(comment: Comment): void
+    + removeComment(id: Long): void
+    + getComments(): List<Comment>
+}
+
+interface IPublishable {
+    + publish(): void
+    + unpublish(): void
+    + archive(): void
+    + isPublished(): boolean
+}
+
+abstract class Person {
+    - id: Long
+    - name: String
+    - email: String
+    # passwordHash: String
+    + <<create>> Person(id: Long, name: String, email: String)
+    + getId(): Long
+    + getName(): String
+    + getEmail(): String
+}
+
+class Guest {
+    + <<create>> Guest()
+    + register(data: RegistrationData): User
+}
+
+class User {
+    - registrationDate: Date
+    + <<create>> User(id: Long, name: String, email: String)
+    + addToFavorites(news: News): void
+    + removeFromFavorites(news: News): void
+}
+
+class Journalist {
+    - rating: Double
+    + <<create>> Journalist(id: Long, name: String, email: String)
+    + createNews(data: NewsData): News
+    + editNews(news: News, data: NewsData): void
+    + deleteNews(news: News): void
+}
+
+class Admin {
+    + <<create>> Admin(id: Long, name: String, email: String)
+    + blockUser(user: User): void
+    + assignRole(user: User, role: Role): void
+    + moderateComment(comment: Comment): void
+}
+
+class News implements IPublishable {
+    - id: Long
+    - title: String
+    - text: String
+    - createdAt: Date
+    - updatedAt: Date
+    - status: NewsStatus
+    + <<create>> News(id: Long, title: String, text: String)
+    + publish(): void
+    + unpublish(): void
+    + archive(): void
+    + isPublished(): boolean
+}
+
+class Comment {
+    - id: Long
+    - text: String
+    - createdAt: Date
+    + <<create>> Comment(id: Long, text: String)
+    + edit(text: String): void
+}
+
+class Category {
+    - id: Long
+    - name: String
+    + <<create>> Category(id: Long, name: String)
+}
+
+class Tag {
+    - id: Long
+    - name: String
+    + <<create>> Tag(id: Long, name: String)
+}
+
+class Favorite {
+    - id: Long
+    - addedAt: Date
+    + <<create>> Favorite(id: Long, addedAt: Date)
+}
+
+class Role {
+    - id: Long
+    - name: String
+    - permissions: List<String>
+    + <<create>> Role(id: Long, name: String)
+}
+
+Person ..|> IAuthorizable
+News ..|> IPublishable
+News ..|> ICommentable
+
+Person <|-- Guest
+Person <|-- User
+User   <|-- Journalist
+User   <|-- Admin
+
+User "1" -- "0..*" Comment
+User "1" -- "0..*" Favorite
+Journalist "1" -- "0..*" News
+News "0..*" -- "1..*" Category
+News "0..*" -- "0..*" Tag
+User "0..*" -- "0..*" Role
+
+News *-- "0..*" Comment
+Category o-- "0..*" News
+
+@enduml

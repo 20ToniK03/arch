@@ -1,0 +1,50 @@
+@startuml
+skinparam linetype ortho
+hide circle
+skinparam rectangle {
+    BackgroundColor White
+    BorderColor Black
+}
+
+' Активный объект (Журналист)
+rectangle "Журналист\n(journalist:Journalist)" as Journalist <<active>> #line.bold
+
+' Составной объект (Сервис)
+rectangle "Сервис контента\n(contentService:Service)" as ContentService <<composite>>
+
+' Внутренние объекты
+rectangle "Валидатор\n(validator:Validator)" as Validator
+rectangle "Генератор ID\n(idGen:Generator)" as IdGenerator
+rectangle "Репозиторий\n(newsRepo:Repository)" as NewsRepo
+
+' Мультиобъект
+rectangle "Категории\n(taxonomies:Category)" as Taxonomies <<multiobject>>
+
+' Конкретный экземпляр новости
+rectangle "Новость\n(newsObj:News)" as NewsObj
+' Выстраиваем нижний ряд слева направо, чтобы они не накладывались
+Validator -[hidden]-> IdGenerator
+IdGenerator -[hidden]-> NewsRepo
+NewsRepo -[hidden]-> NewsObj
+NewsObj -[hidden]-> Taxonomies
+
+' 1. Журналист -> Сервис
+Journalist --> ContentService : 1. newsObj = createNews(data)
+
+' 2-3. Валидация и ID (влево/центр)
+ContentService --> Validator : 2. isValid = validate(data)
+ContentService --> IdGenerator : 3. newId = generateId()
+
+' 4. Создание объекта (вправо)
+ContentService --> NewsObj : 4. <<create>>(newId, data)
+
+' 5. Связь категорий
+NewsObj --> Taxonomies : 5. linkCategories(tags)
+
+' 6. Сохранение (сдвигаем текст вправо пробелами)
+ContentService --> NewsRepo :            6. save(newsObj)
+
+' 7. Возврат
+ContentService --> Journalist :                                 7. return newsObj
+
+@enduml

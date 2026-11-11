@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+skinparam linetype ortho
+
+actor "Гость" as Guest
+actor "Пользователь" as User
+actor "Журналист" as Journalist
+actor "Администратор" as Admin
+
+rectangle "Новостной сервис" {
+    usecase "Просматривать новости" as UC1
+    usecase "Искать новости" as UC2
+    usecase "Читать новости" as UC3
+    usecase "Регистрация / Авторизация" as UC4
+    usecase "Комментировать" as UC5
+    usecase "Избранное" as UC6
+    usecase "Создать / Редактировать / Удалить новость" as UC7
+    usecase "Администрирование" as UC8
+}
+
+Guest --> UC1
+Guest --> UC2
+Guest --> UC3
+Guest --> UC4
+
+User --> UC1
+User --> UC5
+User --> UC6
+
+Journalist --> UC7
+
+Admin --> UC8
+
+UC3 ..> UC1 : <<include>>
+UC5 ..> UC4 : <<include>>
+UC6 ..> UC4 : <<include>>
+UC7 ..> UC4 : <<include>>
+UC8 ..> UC4 : <<include>>
+
+@enduml

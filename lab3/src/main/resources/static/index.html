@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сервис новостей - ЛР3</title>
+    <style>
+        :root {
+            --bg: #f4f6fb;
+            --surface: #ffffff;
+            --text: #1f2430;
+            --muted: #6b7280;
+            --accent: #2f6fed;
+            --accent-dark: #1e4fb8;
+            --border: #dfe4ee;
+            --success: #1a7f4b;
+            --danger: #b42318;
+            --shadow: 0 10px 30px rgba(31, 36, 48, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, #e8efff 0, var(--bg) 45%);
+            color: var(--text);
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+            line-height: 1.5;
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-end;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 30px;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            margin: 6px 0 0;
+            color: var(--muted);
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #e5edff;
+            color: var(--accent-dark);
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr);
+            gap: 22px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel + .panel {
+            margin-top: 22px;
+        }
+
+        .panel h2 {
+            margin: 0 0 16px;
+            font-size: 18px;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.05s ease;
+            font-family: inherit;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+        }
+
+        .btn-secondary {
+            background: #e9eefb;
+            color: var(--accent-dark);
+        }
+
+        .btn-secondary:hover {
+            background: #dbe5fb;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--accent-dark);
+            border: 1px solid var(--border);
+            padding: 7px 12px;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--accent);
+        }
+
+        .search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .search input {
+            flex: 1;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text);
+            background: #fbfcff;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: 2px solid #c9d9ff;
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 72px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        label input, label textarea, label select {
+            margin-top: 5px;
+            font-weight: 400;
+            color: var(--text);
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 0 0 14px;
+        }
+
+        .news-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .news-card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            background: #fbfcff;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .news-card:hover {
+            border-color: #b9ccf7;
+            box-shadow: 0 6px 18px rgba(47, 111, 237, 0.08);
+        }
+
+        .news-card h3 {
+            margin: 0 0 6px;
+            font-size: 17px;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 14px;
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .meta .category {
+            color: var(--accent-dark);
+            font-weight: 600;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .empty {
+            color: var(--muted);
+            text-align: center;
+            padding: 24px 10px;
+            font-size: 14px;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category-chip {
+            background: #eef3ff;
+            border: 1px solid #d9e4ff;
+            color: var(--accent-dark);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .category-chip small {
+            display: block;
+            color: var(--muted);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        #details {
+            display: none;
+        }
+
+        #details.visible {
+            display: block;
+        }
+
+        #details .full-text {
+            white-space: pre-wrap;
+            background: #fbfcff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            background: #f0f3f9;
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 12px;
+            color: #46536b;
+        }
+
+        #toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            max-width: 360px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 12px 30px rgba(31, 36, 48, 0.25);
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+            font-size: 14px;
+            z-index: 10;
+        }
+
+        #toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #toast.error {
+            background: var(--danger);
+        }
+
+        #toast.success {
+            background: var(--success);
+        }
+
+        .loader {
+            color: var(--muted);
+            font-size: 14px;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header>
+        <div>
+            <h1>Сервис новостей</h1>
+            <p>Лабораторная работа №3 - бизнес-объекты, паттерн «Фасад», статика и REST API.</p>
+        </div>
+        <span class="badge">RESTEasy · Undertow · JSON</span>
+    </header>
+
+    <div class="layout">
+        <div>
+            <section class="panel">
+                <h2>Лента новостей</h2>
+                <p class="hint">Данные приходят из <code>GET /reader/news/all</code> и других методов API.</p>
+
+                <div class="toolbar">
+                    <button class="btn-primary" id="btn-all">Все новости</button>
+                    <button class="btn-secondary" id="btn-week">За последнюю неделю</button>
+                    <button class="btn-secondary" id="btn-region">Новости Москвы</button>
+                    <button class="btn-secondary" id="btn-categories">Категории</button>
+                </div>
+
+                <div class="search">
+                    <input id="search-input" type="text" placeholder="Ключевые слова, например: метро транспорт">
+                    <button class="btn-primary" id="btn-search">Найти</button>
+                </div>
+
+                <div id="news-list" class="news-list">
+                    <div class="loader">Загрузка новостей…</div>
+                </div>
+
+                <div id="categories-box" class="category-list" style="margin-top: 18px;"></div>
+            </section>
+
+            <section class="panel" id="details">
+                <h2 id="details-title">Новость</h2>
+                <div class="meta" id="details-meta"></div>
+                <div class="full-text" id="details-text"></div>
+                <div class="tag-row" id="details-tags"></div>
+                <div class="toolbar" style="margin: 14px 0 0;">
+                    <button class="btn-secondary" id="details-bookmark">В закладки</button>
+                    <button class="btn-ghost" id="details-close">Закрыть</button>
+                </div>
+            </section>
+        </div>
+
+        <aside>
+            <section class="panel">
+                <h2>Новая публикация</h2>
+                <p class="hint">Отправляется в <code>POST /creator/news</code>.</p>
+
+                <form id="create-form">
+                    <label>Заголовок *
+                        <input name="title" required maxlength="120" placeholder="О чём новость?">
+                    </label>
+                    <label>Аннотация
+                        <input name="annotation" maxlength="200" placeholder="Короткое описание">
+                    </label>
+                    <label>Текст
+                        <textarea name="text" placeholder="Полный текст новости"></textarea>
+                    </label>
+                    <label>Категория *
+                        <select name="categoryId" id="category-select" required>
+                            <option value="">Загрузка…</option>
+                        </select>
+                    </label>
+                    <label>Автор
+                        <input name="author" placeholder="Редакция">
+                    </label>
+                    <label>Регион
+                        <input name="region" placeholder="Москва">
+                    </label>
+                    <label>Теги (через запятую)
+                        <input name="tags" placeholder="город, транспорт">
+                    </label>
+                    <button class="btn-primary" type="submit">Опубликовать</button>
+                </form>
+            </section>
+
+            <section class="panel">
+                <h2>Комментарий к новости</h2>
+                <p class="hint">Отправляется в <code>POST /reader/comments</code>.</p>
+
+                <form id="comment-form">
+                    <label>ID новости *
+                        <input name="newsId" type="number" min="1" value="1" required>
+                    </label>
+                    <label>Ваше имя
+                        <input name="author" placeholder="Читатель">
+                    </label>
+                    <label>Текст комментария *
+                        <textarea name="text" required placeholder="Что думаете о новости?"></textarea>
+                    </label>
+                    <button class="btn-primary" type="submit">Отправить</button>
+                </form>
+            </section>
+
+            <section class="panel">
+                <h2>Администрирование</h2>
+                <p class="hint">Администратор: <code>GET /admin/users</code>, <code>POST /admin/users/{id}/block</code>.</p>
+
+                <div class="toolbar">
+                    <button class="btn-secondary" id="btn-admin-users">Пользователи</button>
+                    <button class="btn-secondary" id="btn-admin-roles">Роли</button>
+                </div>
+                <div id="admin-list" class="category-list"></div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+    (function () {
+        "use strict";
+
+        var newsList = document.getElementById("news-list");
+        var categoriesBox = document.getElementById("categories-box");
+        var categorySelect = document.getElementById("category-select");
+        var details = document.getElementById("details");
+        var toast = document.getElementById("toast");
+        var toastTimer = null;
+        var currentDetailsId = null;
+
+        function showToast(message, type) {
+            toast.textContent = message;
+            toast.className = "visible " + (type || "");
+            if (toastTimer) {
+                clearTimeout(toastTimer);
+            }
+            toastTimer = setTimeout(function () {
+                toast.className = "";
+            }, 4000);
+        }
+
+        function api(path, options) {
+            var request = options || {};
+            request.headers = request.headers || {};
+            if (request.body && !request.headers["Content-Type"]) {
+                request.headers["Content-Type"] = "application/json; charset=utf-8";
+            }
+            return fetch(path, request).then(function (response) {
+                return response.text().then(function (text) {
+                    var data = null;
+                    if (text) {
+                        try {
+                            data = JSON.parse(text);
+                        } catch (ignore) {
+                            data = {message: text};
+                        }
+                    }
+                    if (!response.ok) {
+                        var message = data && data.message ? data.message : ("HTTP " + response.status);
+                        throw new Error(message);
+                    }
+                    return data;
+                });
+            });
+        }
+
+        function escapeHtml(value) {
+            if (value === null || value === undefined) {
+                return "";
+            }
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        function renderNews(list, emptyMessage) {
+            if (!list || !list.length) {
+                newsList.innerHTML = '<div class="empty">' + escapeHtml(emptyMessage) + "</div>";
+                return;
+            }
+
+            newsList.innerHTML = list.map(function (item) {
+                return '' +
+                    '<article class="news-card">' +
+                    '  <h3>' + escapeHtml(item.title) + '</h3>' +
+                    '  <div class="meta">' +
+                    '    <span class="category">' + escapeHtml(item.category || "Без категории") + '</span>' +
+                    '    <span>' + escapeHtml(item.publishedAt || "") + '</span>' +
+                    '    <span>ID: ' + escapeHtml(item.id) + '</span>' +
+                    '  </div>' +
+                    '  <div class="card-actions">' +
+                    '    <button class="btn-ghost" data-open="' + escapeHtml(item.id) + '">Подробнее</button>' +
+                    '    <button class="btn-ghost" data-bookmark="' + escapeHtml(item.id) + '">В закладки</button>' +
+                    '  </div>' +
+                    '</article>';
+            }).join("");
+        }
+
+        function loadNews(path, emptyMessage, title) {
+            newsList.innerHTML = '<div class="loader">Загрузка…</div>';
+            api(path).then(function (data) {
+                var items = data && data.items ? data.items : [];
+                renderNews(items, emptyMessage);
+                if (title) {
+                    showToast(title + " (найдено: " + (data.total || 0) + ")", "success");
+                }
+            }).catch(function (error) {
+                newsList.innerHTML = '<div class="empty">Ошибка: ' + escapeHtml(error.message) + "</div>";
+                showToast("Ошибка: " + error.message, "error");
+            });
+        }
+
+        function openDetails(id) {
+            currentDetailsId = id;
+            api("/reader/news/" + id).then(function (news) {
+                document.getElementById("details-title").textContent = news.title;
+                document.getElementById("details-meta").innerHTML =
+                    '<span class="category">' + escapeHtml(news.category || "Без категории") + '</span>' +
+                    '<span>' + escapeHtml(news.publishedAt || "") + '</span>' +
+                    '<span>Автор: ' + escapeHtml(news.author || "-") + '</span>' +
+                    '<span>Регион: ' + escapeHtml(news.region || "-") + '</span>' +
+                    '<span>Рейтинг: ' + escapeHtml(news.rating) + '</span>' +
+                    '<span>Статус: ' + escapeHtml(news.status || "-") + '</span>';
+                document.getElementById("details-text").textContent =
+                    (news.annotation ? news.annotation + "\n\n" : "") + (news.text || "");
+                document.getElementById("details-tags").innerHTML =
+                    (news.tags || []).map(function (tag) {
+                        return '<span class="tag">#' + escapeHtml(tag) + '</span>';
+                    }).join("");
+                details.classList.add("visible");
+                details.scrollIntoView({behavior: "smooth", block: "start"});
+            }).catch(function (error) {
+                showToast("Не удалось открыть новость: " + error.message, "error");
+            });
+        }
+
+        function bookmark(id) {
+            api("/reader/news/" + id + "/bookmark", {method: "POST"})
+                .then(function (data) {
+                    showToast(data.message || "Добавлено в закладки", "success");
+                })
+                .catch(function (error) {
+                    showToast("Ошибка: " + error.message, "error");
+                });
+        }
+
+        function loadCategories() {
+            return api("/reader/categories").then(function (data) {
+                var categories = data && data.categories ? data.categories : [];
+
+                categoriesBox.innerHTML = categories.map(function (category) {
+                    return '<span class="category-chip" title="' + escapeHtml(category.description) + '">' +
+                        escapeHtml(category.name) + '</span>';
+                }).join("");
+
+                categorySelect.innerHTML = categories.map(function (category) {
+                    return '<option value="' + escapeHtml(category.id) + '">' +
+                        escapeHtml(category.name) + '</option>';
+                }).join("");
+
+                if (!categories.length) {
+                    categorySelect.innerHTML = '<option value="">Нет категорий</option>';
+                }
+            }).catch(function (error) {
+                categoriesBox.innerHTML = '<div class="empty">Не удалось загрузить категории: ' +
+                    escapeHtml(error.message) + "</div>";
+            });
+        }
+
+        newsList.addEventListener("click", function (event) {
+            var openButton = event.target.closest("[data-open]");
+            if (openButton) {
+                openDetails(openButton.getAttribute("data-open"));
+                return;
+            }
+            var bookmarkButton = event.target.closest("[data-bookmark]");
+            if (bookmarkButton) {
+                bookmark(bookmarkButton.getAttribute("data-bookmark"));
+            }
+        });
+
+        document.getElementById("btn-all").addEventListener("click", function () {
+            loadNews("/reader/news/all", "Новостей пока нет", "Загружены все новости");
+        });
+
+        document.getElementById("btn-week").addEventListener("click", function () {
+            loadNews("/reader/news/last_week", "За последнюю неделю новостей нет",
+                "Новости за неделю");
+        });
+
+        document.getElementById("btn-region").addEventListener("click", function () {
+            loadNews("/reader/news/region?region=" + encodeURIComponent("Москва"),
+                "В Москве новостей нет", "Новости Москвы");
+        });
+
+        document.getElementById("btn-categories").addEventListener("click", function () {
+            loadCategories().then(function () {
+                showToast("Категории обновлены", "success");
+            });
+        });
+
+        document.getElementById("btn-search").addEventListener("click", function () {
+            var keywords = document.getElementById("search-input").value.trim();
+            if (!keywords) {
+                showToast("Введите ключевые слова", "error");
+                return;
+            }
+            loadNews("/reader/news/search?keywords=" + encodeURIComponent(keywords),
+                "По запросу ничего не найдено", "Результаты поиска");
+        });
+
+        document.getElementById("search-input").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                document.getElementById("btn-search").click();
+            }
+        });
+
+        document.getElementById("details-close").addEventListener("click", function () {
+            details.classList.remove("visible");
+        });
+
+        document.getElementById("details-bookmark").addEventListener("click", function () {
+            if (currentDetailsId !== null) {
+                bookmark(currentDetailsId);
+            }
+        });
+
+        document.getElementById("create-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var form = event.target;
+            var payload = {
+                title: form.title.value.trim(),
+                annotation: form.annotation.value.trim(),
+                text: form.text.value.trim(),
+                categoryId: Number(form.categoryId.value),
+                author: form.author.value.trim(),
+                region: form.region.value.trim(),
+                tags: form.tags.value.split(",").map(function (tag) {
+                    return tag.trim();
+                }).filter(function (tag) {
+                    return tag.length > 0;
+                })
+            };
+
+            api("/creator/news", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            }).then(function (created) {
+                showToast("Новость создана, id = " + created.id, "success");
+                form.reset();
+                loadCategories();
+                loadNews("/reader/news/all", "Новостей пока нет");
+            }).catch(function (error) {
+                showToast("Ошибка создания: " + error.message, "error");
+            });
+        });
+
+        document.getElementById("comment-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var form = event.target;
+            var payload = {
+                newsId: Number(form.newsId.value),
+                author: form.author.value.trim(),
+                text: form.text.value.trim()
+            };
+
+            api("/reader/comments", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            }).then(function (comment) {
+                showToast("Комментарий добавлен, id = " + comment.id, "success");
+                form.text.value = "";
+            }).catch(function (error) {
+                showToast("Ошибка комментария: " + error.message, "error");
+            });
+        });
+
+        var adminList = document.getElementById("admin-list");
+
+        function renderUsers(list) {
+            if (!list || !list.length) {
+                adminList.innerHTML = '<div class="empty">Пользователей нет</div>';
+                return;
+            }
+            adminList.innerHTML = list.map(function (u) {
+                return '<div class="category-chip">' + escapeHtml(u.name) +
+                    '<small>' + escapeHtml((u.roles || []).join(", ") || "без роли") +
+                    (u.blocked ? " · заблокирован" : "") + '</small>' +
+                    '<button class="btn-ghost" data-block="' + escapeHtml(u.id) + '">Заблокировать</button></div>';
+            }).join("");
+        }
+
+        document.getElementById("btn-admin-users").addEventListener("click", function () {
+            api("/admin/users").then(function (data) {
+                renderUsers(data.users || []);
+                showToast("Пользователи загружены", "success");
+            }).catch(function (e) {
+                showToast("Ошибка: " + e.message, "error");
+            });
+        });
+
+        document.getElementById("btn-admin-roles").addEventListener("click", function () {
+            api("/admin/roles").then(function (data) {
+                adminList.innerHTML = (data.roles || []).map(function (r) {
+                    return '<span class="category-chip">' + escapeHtml(r.name) +
+                        '<small>' + escapeHtml((r.permissions || []).join(", ")) + '</small></span>';
+                }).join("");
+            }).catch(function (e) {
+                showToast("Ошибка: " + e.message, "error");
+            });
+        });
+
+        adminList.addEventListener("click", function (event) {
+            var blockButton = event.target.closest("[data-block]");
+            if (blockButton) {
+                api("/admin/users/" + blockButton.getAttribute("data-block") + "/block", {method: "POST"})
+                    .then(function (data) {
+                        showToast(data.message || "Пользователь заблокирован", "success");
+                    })
+                    .catch(function (e) {
+                        showToast("Ошибка: " + e.message, "error");
+                    });
+            }
+        });
+
+        loadCategories();
+        loadNews("/reader/news/all", "Новостей пока нет");
+    }());
+</script>
+</body>
+</html>
