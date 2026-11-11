@@ -100,3 +100,73 @@ java -jar target/news-service-lab3.jar
 | Журналист | maria@example.com | pass |
 | Пользователь | ivan@example.com | pass |
 | Администратор | admin@example.com | admin |
+
+## Тестирование через curl (Windows)
+
+Сервер должен быть запущен: `java -jar target/news-service-lab3.jar`.
+
+В PowerShell и cmd используй именно **`curl.exe`** (в PowerShell голый `curl` — это
+алиас на `Invoke-WebRequest`, он не подходит). Кириллицу в параметрах подставляй
+в URL-кодировке (метро = `%D0%BC%D0%B5%D1%82%D1%80%D0%BE`, Москва =
+`%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0`).
+
+### Читатель — GET (можно просто открыть в браузере)
+
+```powershell
+curl.exe "http://localhost:8093/reader/news/all"
+curl.exe "http://localhost:8093/reader/news/1"
+curl.exe "http://localhost:8093/reader/news/last_week"
+curl.exe "http://localhost:8093/reader/news/search?keywords=%D0%BC%D0%B5%D1%82%D1%80%D0%BE"
+curl.exe "http://localhost:8093/reader/news/region?region=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0"
+curl.exe "http://localhost:8093/reader/categories"
+curl.exe "http://localhost:8093/reader/favorites?userId=2"
+```
+
+### Регистрация и вход — POST
+
+```powershell
+curl.exe -X POST "http://localhost:8093/reader/auth/register?name=Petr&email=petr@example.com&password=pass"
+curl.exe -X POST "http://localhost:8093/reader/auth/login?login=maria@example.com&password=pass"
+curl.exe -X POST "http://localhost:8093/reader/auth/login?login=maria@example.com&password=wrong"
+```
+
+### Избранное — POST / DELETE
+
+```powershell
+curl.exe -X POST   "http://localhost:8093/reader/news/1/bookmark?userId=2"
+curl.exe -X DELETE "http://localhost:8093/reader/news/1/bookmark?userId=2"
+```
+
+### Комментарии — POST / PUT / DELETE
+
+```powershell
+curl.exe -X POST "http://localhost:8093/reader/comments" -H "Content-Type: application/json" -d '{"newsId":1,"author":"Ivan","text":"Nice!"}'
+curl.exe -X PUT  "http://localhost:8093/reader/comments/1" -H "Content-Type: application/json" -d '{"text":"Fixed"}'
+curl.exe -X DELETE "http://localhost:8093/reader/comments/1"
+```
+
+### Журналист — новости
+
+```powershell
+curl.exe -X POST "http://localhost:8093/creator/news" -H "Content-Type: application/json" -d '{"title":"Test","text":"Body","categoryId":1,"region":"Moscow","tags":["test"]}'
+curl.exe -X PUT    "http://localhost:8093/creator/news/1" -H "Content-Type: application/json" -d '{"title":"New title"}'
+curl.exe -X DELETE "http://localhost:8093/creator/news/1"
+curl.exe -X POST "http://localhost:8093/creator/news/7/publish"
+curl.exe -X POST "http://localhost:8093/creator/news/7/unpublish"
+curl.exe -X POST "http://localhost:8093/creator/news/6/archive"
+curl.exe -X POST "http://localhost:8093/creator/news/1/tags?tag=java"
+curl.exe -X POST "http://localhost:8093/creator/news/1/media?url=https://example.com/a.jpg"
+```
+
+### Администратор
+
+```powershell
+curl.exe "http://localhost:8093/admin/users"
+curl.exe "http://localhost:8093/admin/roles"
+curl.exe -X POST "http://localhost:8093/admin/users/2/block"
+curl.exe -X PUT  "http://localhost:8093/admin/users/2/role?role=ADMIN"
+curl.exe -X POST "http://localhost:8093/admin/comments/1/moderate?action=approve"
+```
+
+> В **cmd** одинарные кавычки для JSON не работают — используй двойные с
+> экранированием: `curl.exe -X POST ... -d "{\"title\":\"Test\",\"categoryId\":1}"`.
