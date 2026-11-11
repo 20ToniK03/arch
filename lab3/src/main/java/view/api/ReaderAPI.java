@@ -1,7 +1,6 @@
 package view.api;
 
 import controller.FacadeController;
-import controller.person.RegistrationData;
 import view.api.dto.ActionStatusDTO;
 import view.api.dto.CategoryDTO;
 import view.api.dto.CategoryListDTO;
@@ -9,9 +8,7 @@ import view.api.dto.CommentDTO;
 import view.api.dto.CreateCommentRequestDTO;
 import view.api.dto.NewsItemDTO;
 import view.api.dto.NewsListDTO;
-import view.api.dto.NewsTitleDTO;
 import view.api.dto.UpdateCommentRequestDTO;
-import view.api.dto.UserDTO;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -28,17 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * API читателя (актёры «Гость» и «Пользователь») - лабораторная работа №3.
+ * API читателя - лабораторная работа №3.
  *
- * <p>Просмотр/поиск/чтение новостей, регистрация/авторизация, комментарии
- * и избранное - через {@link FacadeController}.</p>
+ * <p>Просмотр/поиск/чтение новостей, категории и комментарии - через
+ * {@link FacadeController}.</p>
  */
 @Path("/reader")
 @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 public class ReaderAPI {
-
-    /** Идентификатор тестового пользователя «Иван Петров» (для закладок). */
-    private static final long DEFAULT_USER_ID = 2L;
 
     private final FacadeController facade = FacadeController.getInstance();
 
@@ -93,64 +87,6 @@ public class ReaderAPI {
         return Response.ok(new CategoryListDTO(categories)).build();
     }
 
-    /** Добавить новость в избранное (use case «Избранное»). */
-    @POST
-    @Path("/news/{id}/bookmark")
-    public Response addBookmark(@PathParam("id") Long id,
-                                @QueryParam("userId") Long userId) {
-        long uid = userId == null ? DEFAULT_USER_ID : userId;
-        if (!facade.addBookmark(uid, id)) {
-            return error(Response.Status.NOT_FOUND, "Новость или пользователь не найдены");
-        }
-        return Response.ok(ActionStatusDTO.ok("Новость " + id + " добавлена в избранное")).build();
-    }
-
-    /** Убрать новость из избранного (use case «Избранное»). */
-    @DELETE
-    @Path("/news/{id}/bookmark")
-    public Response removeBookmark(@PathParam("id") Long id,
-                                   @QueryParam("userId") Long userId) {
-        long uid = userId == null ? DEFAULT_USER_ID : userId;
-        if (!facade.removeBookmark(uid, id)) {
-            return error(Response.Status.NOT_FOUND, "Новость или пользователь не найдены");
-        }
-        return Response.ok(ActionStatusDTO.ok("Новость " + id + " убрана из избранного")).build();
-    }
-
-    /** Список избранного пользователя (use case «Избранное»). */
-    @GET
-    @Path("/favorites")
-    public Response getFavorites(@QueryParam("userId") Long userId) {
-        long uid = userId == null ? DEFAULT_USER_ID : userId;
-        return Response.ok(new NewsListDTO(facade.getFavorites(uid))).build();
-    }
-
-    /** Регистрация (use case «Регистрация / Авторизация»). */
-    @POST
-    @Path("/auth/register")
-    public Response register(@QueryParam("name") String name,
-                             @QueryParam("email") String email,
-                             @QueryParam("password") String password) {
-        UserDTO user = facade.register(new RegistrationData(name, email, password));
-        if (user == null) {
-            return error(Response.Status.BAD_REQUEST,
-                    "Некорректные данные или пользователь с таким email уже существует");
-        }
-        return Response.status(Response.Status.CREATED).entity(user).build();
-    }
-
-    /** Вход в систему (IAuthorizable.login). */
-    @POST
-    @Path("/auth/login")
-    public Response login(@QueryParam("login") String login,
-                          @QueryParam("password") String password) {
-        if (facade.login(login, password)) {
-            return Response.ok(ActionStatusDTO.ok("Вход выполнен")).build();
-        }
-        return error(Response.Status.UNAUTHORIZED, "Неверный логин или пароль");
-    }
-
-    /** Оставить комментарий (use case «Комментировать»). */
     @POST
     @Path("/comments")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")

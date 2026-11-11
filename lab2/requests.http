@@ -8,26 +8,17 @@ GET {{host}}/reader/news/all
 ### Одна новость (ответ - JSON-объект NewsItemDTO)
 GET {{host}}/reader/news/1
 
-### Неверный id (400 + ActionStatusDTO)
-GET {{host}}/reader/news/0
-
 ### Новости за последнюю неделю
 GET {{host}}/reader/news/last_week
 
 ### Поиск по ключевым словам
 GET {{host}}/reader/news/search?keywords=метро
 
-### Поиск без параметра (400)
-GET {{host}}/reader/news/search
-
 ### Новости региона
 GET {{host}}/reader/news/region?region=Москва
 
 ### Категории (CategoryListDTO)
 GET {{host}}/reader/categories
-
-### Добавить в закладки (ActionStatusDTO)
-POST {{host}}/reader/news/1/bookmark
 
 ### Оставить комментарий (CreateCommentRequestDTO -> CommentDTO)
 POST {{host}}/reader/comments
@@ -49,6 +40,8 @@ Content-Type: application/json
 
 ### Удалить комментарий
 DELETE {{host}}/reader/comments/1
+
+### ===== API создателя =====
 
 ### Создать новость (CreateNewsRequestDTO -> NewsItemDTO)
 POST {{host}}/creator/news
@@ -75,34 +68,3 @@ Content-Type: application/json
 
 ### Удалить новость
 DELETE {{host}}/creator/news/1
-
-### Прикрепить медиафайл
-POST {{host}}/creator/news/1/media?url=https://example.com/photo.jpg
-
-### Добавить тег
-POST {{host}}/creator/news/1/tags?tag=java
-
-### Ответить на комментарий
-POST {{host}}/creator/comments/1/reply
-Content-Type: application/json
-
-{
-  "text": "Спасибо за отзыв!"
-}
-
-### ===== API администратора =====
-
-### Список пользователей (UserListDTO)
-GET {{host}}/admin/users
-
-### Список ролей (RoleListDTO)
-GET {{host}}/admin/roles
-
-### Заблокировать пользователя (ActionStatusDTO)
-POST {{host}}/admin/users/1/block
-
-### Назначить роль (ActionStatusDTO)
-PUT {{host}}/admin/users/1/role?role=ADMIN
-
-### Модерировать комментарий (ActionStatusDTO)
-POST {{host}}/admin/comments/1/moderate?action=approve

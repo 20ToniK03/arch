@@ -142,6 +142,12 @@
             background: #dbe5fb;
         }
 
+        .btn-secondary.active,
+        .btn-secondary.active:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
         .btn-ghost {
             background: transparent;
             color: var(--accent-dark);
@@ -365,7 +371,7 @@
                 <p class="hint">Данные приходят из <code>GET /reader/news/all</code> и других методов API.</p>
 
                 <div class="toolbar">
-                    <button class="btn-primary" id="btn-all">Все новости</button>
+                    <button class="btn-secondary active" id="btn-all">Все новости</button>
                     <button class="btn-secondary" id="btn-week">За последнюю неделю</button>
                     <button class="btn-secondary" id="btn-region">Новости Москвы</button>
                     <button class="btn-secondary" id="btn-categories">Категории</button>
@@ -389,7 +395,6 @@
                 <div class="full-text" id="details-text"></div>
                 <div class="tag-row" id="details-tags"></div>
                 <div class="toolbar" style="margin: 14px 0 0;">
-                    <button class="btn-secondary" id="details-bookmark">В закладки</button>
                     <button class="btn-ghost" id="details-close">Закрыть</button>
                 </div>
             </section>
@@ -445,17 +450,6 @@
                     <button class="btn-primary" type="submit">Отправить</button>
                 </form>
             </section>
-
-            <section class="panel">
-                <h2>Администрирование</h2>
-                <p class="hint">Администратор: <code>GET /admin/users</code>, <code>POST /admin/users/{id}/block</code>.</p>
-
-                <div class="toolbar">
-                    <button class="btn-secondary" id="btn-admin-users">Пользователи</button>
-                    <button class="btn-secondary" id="btn-admin-roles">Роли</button>
-                </div>
-                <div id="admin-list" class="category-list"></div>
-            </section>
         </aside>
     </div>
 </div>
@@ -472,7 +466,6 @@
         var details = document.getElementById("details");
         var toast = document.getElementById("toast");
         var toastTimer = null;
-        var currentDetailsId = null;
 
         function showToast(message, type) {
             toast.textContent = message;
@@ -538,7 +531,6 @@
                     '  </div>' +
                     '  <div class="card-actions">' +
                     '    <button class="btn-ghost" data-open="' + escapeHtml(item.id) + '">Подробнее</button>' +
-                    '    <button class="btn-ghost" data-bookmark="' + escapeHtml(item.id) + '">В закладки</button>' +
                     '  </div>' +
                     '</article>';
             }).join("");
@@ -559,7 +551,6 @@
         }
 
         function openDetails(id) {
-            currentDetailsId = id;
             api("/reader/news/" + id).then(function (news) {
                 document.getElementById("details-title").textContent = news.title;
                 document.getElementById("details-meta").innerHTML =
@@ -567,8 +558,7 @@
                     '<span>' + escapeHtml(news.publishedAt || "") + '</span>' +
                     '<span>Автор: ' + escapeHtml(news.author || "-") + '</span>' +
                     '<span>Регион: ' + escapeHtml(news.region || "-") + '</span>' +
-                    '<span>Рейтинг: ' + escapeHtml(news.rating) + '</span>' +
-                    '<span>Статус: ' + escapeHtml(news.status || "-") + '</span>';
+                    '<span>Рейтинг: ' + escapeHtml(news.rating) + '</span>';
                 document.getElementById("details-text").textContent =
                     (news.annotation ? news.annotation + "\n\n" : "") + (news.text || "");
                 document.getElementById("details-tags").innerHTML =
@@ -580,16 +570,6 @@
             }).catch(function (error) {
                 showToast("Не удалось открыть новость: " + error.message, "error");
             });
-        }
-
-        function bookmark(id) {
-            api("/reader/news/" + id + "/bookmark", {method: "POST"})
-                .then(function (data) {
-                    showToast(data.message || "Добавлено в закладки", "success");
-                })
-                .catch(function (error) {
-                    showToast("Ошибка: " + error.message, "error");
-                });
         }
 
         function loadCategories() {
@@ -619,29 +599,35 @@
             var openButton = event.target.closest("[data-open]");
             if (openButton) {
                 openDetails(openButton.getAttribute("data-open"));
-                return;
-            }
-            var bookmarkButton = event.target.closest("[data-bookmark]");
-            if (bookmarkButton) {
-                bookmark(bookmarkButton.getAttribute("data-bookmark"));
             }
         });
 
+        function setActiveNewsFilter(activeButton) {
+            ["btn-all", "btn-week", "btn-region", "btn-categories"].forEach(function (id) {
+                var button = document.getElementById(id);
+                button.classList.toggle("active", button === activeButton);
+            });
+        }
+
         document.getElementById("btn-all").addEventListener("click", function () {
+            setActiveNewsFilter(this);
             loadNews("/reader/news/all", "Новостей пока нет", "Загружены все новости");
         });
 
         document.getElementById("btn-week").addEventListener("click", function () {
+            setActiveNewsFilter(this);
             loadNews("/reader/news/last_week", "За последнюю неделю новостей нет",
                 "Новости за неделю");
         });
 
         document.getElementById("btn-region").addEventListener("click", function () {
+            setActiveNewsFilter(this);
             loadNews("/reader/news/region?region=" + encodeURIComponent("Москва"),
                 "В Москве новостей нет", "Новости Москвы");
         });
 
         document.getElementById("btn-categories").addEventListener("click", function () {
+            setActiveNewsFilter(this);
             loadCategories().then(function () {
                 showToast("Категории обновлены", "success");
             });
@@ -665,12 +651,6 @@
 
         document.getElementById("details-close").addEventListener("click", function () {
             details.classList.remove("visible");
-        });
-
-        document.getElementById("details-bookmark").addEventListener("click", function () {
-            if (currentDetailsId !== null) {
-                bookmark(currentDetailsId);
-            }
         });
 
         document.getElementById("create-form").addEventListener("submit", function (event) {
@@ -697,6 +677,7 @@
                 showToast("Новость создана, id = " + created.id, "success");
                 form.reset();
                 loadCategories();
+                setActiveNewsFilter(document.getElementById("btn-all"));
                 loadNews("/reader/news/all", "Новостей пока нет");
             }).catch(function (error) {
                 showToast("Ошибка создания: " + error.message, "error");
@@ -721,54 +702,6 @@
             }).catch(function (error) {
                 showToast("Ошибка комментария: " + error.message, "error");
             });
-        });
-
-        var adminList = document.getElementById("admin-list");
-
-        function renderUsers(list) {
-            if (!list || !list.length) {
-                adminList.innerHTML = '<div class="empty">Пользователей нет</div>';
-                return;
-            }
-            adminList.innerHTML = list.map(function (u) {
-                return '<div class="category-chip">' + escapeHtml(u.name) +
-                    '<small>' + escapeHtml((u.roles || []).join(", ") || "без роли") +
-                    (u.blocked ? " · заблокирован" : "") + '</small>' +
-                    '<button class="btn-ghost" data-block="' + escapeHtml(u.id) + '">Заблокировать</button></div>';
-            }).join("");
-        }
-
-        document.getElementById("btn-admin-users").addEventListener("click", function () {
-            api("/admin/users").then(function (data) {
-                renderUsers(data.users || []);
-                showToast("Пользователи загружены", "success");
-            }).catch(function (e) {
-                showToast("Ошибка: " + e.message, "error");
-            });
-        });
-
-        document.getElementById("btn-admin-roles").addEventListener("click", function () {
-            api("/admin/roles").then(function (data) {
-                adminList.innerHTML = (data.roles || []).map(function (r) {
-                    return '<span class="category-chip">' + escapeHtml(r.name) +
-                        '<small>' + escapeHtml((r.permissions || []).join(", ")) + '</small></span>';
-                }).join("");
-            }).catch(function (e) {
-                showToast("Ошибка: " + e.message, "error");
-            });
-        });
-
-        adminList.addEventListener("click", function (event) {
-            var blockButton = event.target.closest("[data-block]");
-            if (blockButton) {
-                api("/admin/users/" + blockButton.getAttribute("data-block") + "/block", {method: "POST"})
-                    .then(function (data) {
-                        showToast(data.message || "Пользователь заблокирован", "success");
-                    })
-                    .catch(function (e) {
-                        showToast("Ошибка: " + e.message, "error");
-                    });
-            }
         });
 
         loadCategories();

@@ -9,7 +9,6 @@
 3. В пакете `view.api` описаны:
    * `ReaderAPI` - методы читателя (`@Path("/reader")`);
    * `CreatorAPI` - методы создателя/редактора (`@Path("/creator")`);
-   * `AdminAPI` - методы администратора (`@Path("/admin")`);
    * `SingletonAPI` - JAX-RS `Application`, который отдаёт **ровно по одному экземпляру**
      каждого API (паттерн «Одиночка»).
 4. В `view.WebAppServer` поднят встроенный веб-сервер Undertow и развёрнуто приложение.
@@ -29,7 +28,6 @@ lab1/
         └── api/
             ├── ReaderAPI.java
             ├── CreatorAPI.java
-            ├── AdminAPI.java
             └── SingletonAPI.java      # Application + Singleton
 ```
 

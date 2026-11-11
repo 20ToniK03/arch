@@ -75,14 +75,6 @@ public class ReaderAPI {
         return ok("Список категорий новостей. Заглушка лабораторной работы №1.");
     }
 
-    /** Добавить новость в закладки. POST /reader/news/1/bookmark */
-    @POST
-    @Path("/news/{id}/bookmark")
-    public Response addBookmark(@PathParam("id") Long id) {
-        return ok("Новость с id = " + id + " добавлена в закладки "
-                + "(заглушка лабораторной работы №1).");
-    }
-
     /** Оставить комментарий к новости. POST /reader/comments?newsId=1&author=Иван&text=... */
     @POST
     @Path("/comments")

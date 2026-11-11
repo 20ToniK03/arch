@@ -10,19 +10,16 @@ public class CommentDTO {
     private String author;
     private String text;
     private String createdAt;
-    private String reply;
 
     public CommentDTO() {
     }
 
-    public CommentDTO(Long id, Long newsId, String author, String text,
-                      String createdAt, String reply) {
+    public CommentDTO(Long id, Long newsId, String author, String text, String createdAt) {
         this.id = id;
         this.newsId = newsId;
         this.author = author;
         this.text = text;
         this.createdAt = createdAt;
-        this.reply = reply;
     }
 
     public Long getId() {
@@ -63,13 +60,5 @@ public class CommentDTO {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public String getReply() {
-        return reply;
-    }
-
-    public void setReply(String reply) {
-        this.reply = reply;
     }
 }

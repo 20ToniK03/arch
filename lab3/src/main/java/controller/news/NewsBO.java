@@ -1,11 +1,6 @@
 package controller.news;
 
 import controller.category.CategoryBO;
-import controller.comment.CommentBO;
-import controller.interfaces.ICommentable;
-import controller.interfaces.IPublishable;
-import controller.person.JournalistBO;
-import controller.tag.TagBO;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,35 +10,24 @@ import java.util.Locale;
 /**
  * Бизнес-объект «Новость» (UML: {@code News}).
  *
- * <p>Реализует {@link IPublishable} (жизненный цикл публикации) и
- * {@link ICommentable} (комментарии, композиция {@code News *-- Comment}).
- * Связана с категориями ({@code News 0..* -- 1..* Category}), тегами
- * ({@code News 0..* -- 0..* Tag}) и автором-журналистом
- * ({@code Journalist 1 -- 0..* News}).</p>
+ * <p>Описывает предметную область новости: заголовок, аннотация, текст,
+ * категория, автор, регион, дата публикации, теги и рейтинг.</p>
  */
-public class NewsBO implements IPublishable, ICommentable {
+public class NewsBO {
 
     private Long id;
     private String title;
-    private String text;
-    private Date createdAt;
-    private Date updatedAt;
-    private NewsStatus status = NewsStatus.DRAFT;
-
-    private JournalistBO author;
-    private List<CategoryBO> categories = new ArrayList<CategoryBO>();
-    private List<TagBO> tags = new ArrayList<TagBO>();
-    private List<CommentBO> comments = new ArrayList<CommentBO>();
-
-    // Вспомогательные поля (аннотация и регион - для поиска и интерфейса).
     private String annotation;
+    private String text;
+    private CategoryBO category;
+    private String author;
     private String region;
-    private List<String> media = new ArrayList<String>();
+    private Date publishedAt;
+    private List<String> tags = new ArrayList<String>();
     private int rating;
 
     public NewsBO() {
-        this.createdAt = new Date();
-        this.updatedAt = new Date();
+        this.publishedAt = new Date();
     }
 
     public NewsBO(Long id, String title, String text) {
@@ -53,54 +37,7 @@ public class NewsBO implements IPublishable, ICommentable {
         this.text = text;
     }
 
-    // IPublishable
-
-    @Override
-    public void publish() {
-        this.status = NewsStatus.PUBLISHED;
-        touch();
-    }
-
-    @Override
-    public void unpublish() {
-        this.status = NewsStatus.DRAFT;
-        touch();
-    }
-
-    @Override
-    public void archive() {
-        this.status = NewsStatus.ARCHIVED;
-        touch();
-    }
-
-    @Override
-    public boolean isPublished() {
-        return this.status == NewsStatus.PUBLISHED || this.status == NewsStatus.EDITED;
-    }
-
-    // ICommentable
-
-    @Override
-    public void addComment(CommentBO comment) {
-        comments.add(comment);
-    }
-
-    @Override
-    public void removeComment(Long id) {
-        comments.removeIf(comment -> comment.getId() != null && comment.getId().equals(id));
-    }
-
-    @Override
-    public List<CommentBO> getComments() {
-        return comments;
-    }
-
-    // Поиск
-
-    /**
-     * Совпадает ли новость с ключевым словом (заголовок, аннотация, текст, теги).
-     * Совпадения по категориям добавляет фасад.
-     */
+    /** Совпадает ли новость с ключевым словом (заголовок, аннотация, текст, теги). */
     public boolean matchesKeyword(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return false;
@@ -111,49 +48,29 @@ public class NewsBO implements IPublishable, ICommentable {
                 || containsIgnoreCase(text, needle)) {
             return true;
         }
-        for (TagBO tag : tags) {
-            if (containsIgnoreCase(tag.getName(), needle)) {
+        for (String tag : tags) {
+            if (containsIgnoreCase(tag, needle)) {
                 return true;
             }
         }
         return false;
     }
 
-    // Бизнес-операции
-
-    public void addCategory(CategoryBO category) {
-        if (category != null && !categories.contains(category)) {
-            categories.add(category);
-        }
-    }
-
-    public void addTag(TagBO tag) {
-        if (tag != null) {
-            for (TagBO existing : tags) {
-                if (existing.getName() != null && existing.getName().equalsIgnoreCase(tag.getName())) {
+    public void addTag(String tag) {
+        if (tag != null && !tag.trim().isEmpty()) {
+            String trimmed = tag.trim();
+            for (String existing : tags) {
+                if (existing.equalsIgnoreCase(trimmed)) {
                     return;
                 }
             }
-            tags.add(tag);
+            tags.add(trimmed);
         }
-    }
-
-    public void addMedia(String url) {
-        if (url != null && !url.trim().isEmpty() && !media.contains(url)) {
-            media.add(url);
-        }
-    }
-
-    /** Обновить дату изменения. */
-    public void touch() {
-        this.updatedAt = new Date();
     }
 
     private static boolean containsIgnoreCase(String value, String lowerNeedle) {
         return value != null && value.toLowerCase(Locale.ROOT).contains(lowerNeedle);
     }
-
-    // Геттеры / сеттеры
 
     public Long getId() {
         return id;
@@ -171,6 +88,14 @@ public class NewsBO implements IPublishable, ICommentable {
         this.title = title;
     }
 
+    public String getAnnotation() {
+        return annotation;
+    }
+
+    public void setAnnotation(String annotation) {
+        this.annotation = annotation;
+    }
+
     public String getText() {
         return text;
     }
@@ -179,64 +104,20 @@ public class NewsBO implements IPublishable, ICommentable {
         this.text = text;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public CategoryBO getCategory() {
+        return category;
     }
 
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
+    public void setCategory(CategoryBO category) {
+        this.category = category;
     }
 
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public NewsStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(NewsStatus status) {
-        this.status = status;
-    }
-
-    public JournalistBO getAuthor() {
+    public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(JournalistBO author) {
+    public void setAuthor(String author) {
         this.author = author;
-    }
-
-    public List<CategoryBO> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<CategoryBO> categories) {
-        this.categories = categories == null ? new ArrayList<CategoryBO>() : categories;
-    }
-
-    public List<TagBO> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<TagBO> tags) {
-        this.tags = tags == null ? new ArrayList<TagBO>() : tags;
-    }
-
-    public void setComments(List<CommentBO> comments) {
-        this.comments = comments == null ? new ArrayList<CommentBO>() : comments;
-    }
-
-    public String getAnnotation() {
-        return annotation;
-    }
-
-    public void setAnnotation(String annotation) {
-        this.annotation = annotation;
     }
 
     public String getRegion() {
@@ -247,12 +128,20 @@ public class NewsBO implements IPublishable, ICommentable {
         this.region = region;
     }
 
-    public List<String> getMedia() {
-        return media;
+    public Date getPublishedAt() {
+        return publishedAt;
     }
 
-    public void setMedia(List<String> media) {
-        this.media = media == null ? new ArrayList<String>() : media;
+    public void setPublishedAt(Date publishedAt) {
+        this.publishedAt = publishedAt;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags == null ? new ArrayList<String>() : tags;
     }
 
     public int getRating() {

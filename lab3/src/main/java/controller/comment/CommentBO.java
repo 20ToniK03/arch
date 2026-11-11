@@ -1,32 +1,27 @@
 package controller.comment;
 
-import controller.person.UserBO;
-
 import java.util.Date;
 
 /**
  * Бизнес-объект «Комментарий» (UML: {@code Comment}).
- *
- * <p>Комментарий является частью новости (композиция {@code News *-- Comment})
- * и имеет автора ({@code User 1 -- 0..* Comment}).</p>
  */
 public class CommentBO {
 
     private Long id;
+    private Long newsId;
+    private String author;
     private String text;
     private Date createdAt;
-    private UserBO author;
-    private boolean approved;
 
     public CommentBO() {
     }
 
-    public CommentBO(Long id, String text, Date createdAt, UserBO author) {
+    public CommentBO(Long id, Long newsId, String author, String text, Date createdAt) {
         this.id = id;
+        this.newsId = newsId;
+        this.author = author;
         this.text = text;
         this.createdAt = createdAt;
-        this.author = author;
-        this.approved = true;
     }
 
     /** Редактировать текст комментария (метод {@code edit} из UML). */
@@ -40,6 +35,22 @@ public class CommentBO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getNewsId() {
+        return newsId;
+    }
+
+    public void setNewsId(Long newsId) {
+        this.newsId = newsId;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public String getText() {
@@ -56,21 +67,5 @@ public class CommentBO {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public UserBO getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(UserBO author) {
-        this.author = author;
-    }
-
-    public boolean isApproved() {
-        return approved;
-    }
-
-    public void setApproved(boolean approved) {
-        this.approved = approved;
     }
 }

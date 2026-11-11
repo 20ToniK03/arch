@@ -11,12 +11,9 @@
    * `NewsListDTO` - обёртка списка (`items` + `total`);
    * `CategoryDTO`, `CategoryListDTO` - категория и список категорий;
    * `CommentDTO` - комментарий;
-   * `ActionStatusDTO` - результат действия (создание/удаление/закладка и т.п.);
-   * `UserDTO`, `UserListDTO` - пользователь и список (для админа);
-   * `RoleDTO`, `RoleListDTO` - роль и список ролей.
+   * `ActionStatusDTO` - результат действия (создание/удаление и т.п.).
 3. Добавлены DTO запросов: `CreateNewsRequestDTO`, `UpdateNewsRequestDTO`,
-   `CreateCommentRequestDTO`, `UpdateCommentRequestDTO`, `ReplyCommentRequestDTO`.
-4. Добавлен `AdminAPI` (`/admin`) - администратор из UML (блокировка, роли, модерация).
+   `CreateCommentRequestDTO`, `UpdateCommentRequestDTO`.
 4. В каждый метод вместо текста возвращается экземпляр DTO с тестовыми данными.
 5. Подключён `resteasy-jackson2-provider`; в `SingletonAPI` зарегистрирован
    `JacksonJsonProvider`, поэтому ответы автоматически сериализуются в JSON.
@@ -38,7 +35,6 @@ lab2/
         └── api/
             ├── ReaderAPI.java           # GET + комментарии
             ├── CreatorAPI.java          # создание/изменение/удаление
-            ├── AdminAPI.java            # администрирование (/admin)
             ├── SingletonAPI.java        # Application + Jackson + CORS
             └── dto/
                 ├── NewsItemDTO.java
@@ -48,15 +44,10 @@ lab2/
                 ├── CategoryListDTO.java
                 ├── CommentDTO.java
                 ├── ActionStatusDTO.java
-                ├── UserDTO.java
-                ├── UserListDTO.java
-                ├── RoleDTO.java
-                ├── RoleListDTO.java
                 ├── CreateNewsRequestDTO.java
                 ├── UpdateNewsRequestDTO.java
                 ├── CreateCommentRequestDTO.java
-                ├── UpdateCommentRequestDTO.java
-                └── ReplyCommentRequestDTO.java
+                └── UpdateCommentRequestDTO.java
 ```
 
 ## Запуск

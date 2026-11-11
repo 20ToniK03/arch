@@ -13,16 +13,13 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * API журналиста (актёр «Журналист», use case «Создать/Редактировать/Удалить
- * новость») - лабораторная работа №3.
+ * API создателя/редактора - лабораторная работа №3.
  *
- * <p>Работает через {@link FacadeController} (внутри - {@code JournalistBO}:
- * {@code createNews}, {@code editNews}, {@code deleteNews}).</p>
+ * <p>Создание/изменение/удаление новости через {@link FacadeController}.</p>
  */
 @Path("/creator")
 @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -66,65 +63,6 @@ public class CreatorAPI {
             return error(Response.Status.NOT_FOUND, "Новость с id = " + id + " не найдена");
         }
         return Response.ok(ActionStatusDTO.ok("Новость " + id + " удалена")).build();
-    }
-
-    /** Опубликовать новость (IPublishable.publish, состояние Published). */
-    @POST
-    @Path("/news/{id}/publish")
-    public Response publishNews(@PathParam("id") Long id) {
-        NewsItemDTO published = facade.publishNews(id);
-        if (published == null) {
-            return error(Response.Status.NOT_FOUND, "Новость с id = " + id + " не найдена");
-        }
-        return Response.ok(published).build();
-    }
-
-    /** Снять с публикации (IPublishable.unpublish, состояние Draft). */
-    @POST
-    @Path("/news/{id}/unpublish")
-    public Response unpublishNews(@PathParam("id") Long id) {
-        NewsItemDTO unpublished = facade.unpublishNews(id);
-        if (unpublished == null) {
-            return error(Response.Status.NOT_FOUND, "Новость с id = " + id + " не найдена");
-        }
-        return Response.ok(unpublished).build();
-    }
-
-    /** Перевести в архив (IPublishable.archive, состояние Archived). */
-    @POST
-    @Path("/news/{id}/archive")
-    public Response archiveNews(@PathParam("id") Long id) {
-        NewsItemDTO archived = facade.archiveNews(id);
-        if (archived == null) {
-            return error(Response.Status.NOT_FOUND, "Новость с id = " + id + " не найдена");
-        }
-        return Response.ok(archived).build();
-    }
-
-    /** Добавить тег (News 0..* -- 0..* Tag). */
-    @POST
-    @Path("/news/{id}/tags")
-    public Response addTag(@PathParam("id") Long id, @QueryParam("tag") String tag) {
-        if (isBlank(tag)) {
-            return error(Response.Status.BAD_REQUEST, "Параметр tag обязателен");
-        }
-        if (!facade.addTag(id, tag)) {
-            return error(Response.Status.NOT_FOUND, "Новость с id = " + id + " не найдена");
-        }
-        return Response.ok(ActionStatusDTO.ok("К новости " + id + " добавлен тег «" + tag + "»")).build();
-    }
-
-    /** Прикрепить медиафайл (вспомогательный метод). */
-    @POST
-    @Path("/news/{id}/media")
-    public Response attachMedia(@PathParam("id") Long id, @QueryParam("url") String url) {
-        if (isBlank(url)) {
-            return error(Response.Status.BAD_REQUEST, "Параметр url обязателен");
-        }
-        if (!facade.attachMedia(id, url)) {
-            return error(Response.Status.NOT_FOUND, "Новость с id = " + id + " не найдена");
-        }
-        return Response.ok(ActionStatusDTO.ok("К новости " + id + " прикреплён файл " + url)).build();
     }
 
     private static boolean isBlank(String value) {

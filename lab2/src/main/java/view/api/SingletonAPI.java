@@ -21,7 +21,6 @@ public class SingletonAPI extends Application {
     public SingletonAPI() {
         singletons.add(new ReaderAPI());
         singletons.add(new CreatorAPI());
-        singletons.add(new AdminAPI());
 
         singletons.add(new JacksonJsonProvider());
 

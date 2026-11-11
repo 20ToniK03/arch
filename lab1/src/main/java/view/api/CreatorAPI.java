@@ -48,42 +48,6 @@ public class CreatorAPI {
         return ok("Новость с id = " + id + " удалена (заглушка лабораторной работы №1).");
     }
 
-    /** Прикрепить медиафайл. POST /creator/news/1/media?url=https://... */
-    @POST
-    @Path("/news/{id}/media")
-    public Response attachMedia(@PathParam("id") Long id,
-                                @QueryParam("url") String url) {
-        if (isBlank(url)) {
-            return badRequest("Параметр url обязателен");
-        }
-        return ok("К новости " + id + " прикреплён медиафайл " + url
-                + " (заглушка лабораторной работы №1).");
-    }
-
-    /** Добавить тег. POST /creator/news/1/tags?tag=java */
-    @POST
-    @Path("/news/{id}/tags")
-    public Response addTag(@PathParam("id") Long id,
-                           @QueryParam("tag") String tag) {
-        if (isBlank(tag)) {
-            return badRequest("Параметр tag обязателен");
-        }
-        return ok("К новости " + id + " добавлен тег «" + tag + "» "
-                + "(заглушка лабораторной работы №1).");
-    }
-
-    /** Ответить на комментарий. POST /creator/comments/1/reply?text=... */
-    @POST
-    @Path("/comments/{id}/reply")
-    public Response replyToComment(@PathParam("id") Long id,
-                                   @QueryParam("text") String text) {
-        if (isBlank(text)) {
-            return badRequest("Параметр text обязателен");
-        }
-        return ok("Ответ на комментарий " + id + " добавлен "
-                + "(заглушка лабораторной работы №1).");
-    }
-
     private static boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }

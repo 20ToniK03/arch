@@ -21,7 +21,6 @@ public class SingletonAPI extends Application {
         Set<Object> instances = new LinkedHashSet<Object>();
         instances.add(new ReaderAPI());
         instances.add(new CreatorAPI());
-        instances.add(new AdminAPI());
         this.singletons = Collections.unmodifiableSet(instances);
     }
 

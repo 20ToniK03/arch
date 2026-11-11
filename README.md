@@ -8,9 +8,9 @@
 
 | Работа | Папка | Порт | Тема | Ключевые файлы |
 |--------|-------|------|------|----------------|
-| №1 | [`lab1`](lab1) | 8091 | REST API, паттерн «Одиночка» | `view/api/ReaderAPI.java`, `view/api/CreatorAPI.java`, `view/api/AdminAPI.java`, `view/api/SingletonAPI.java` |
-| №2 | [`lab2`](lab2) | 8092 | DTO и JSON-ответы | `view/api/dto/*`, контроллеры (Reader/Creator/Admin), возвращающие DTO |
-| №3 | [`lab3`](lab3) | 8093 | Бизнес-объекты по UML, «Фасад», AdminAPI, статика | `controller/**` (Person/User/Journalist/Admin, News, Comment, Category, Tag, Favorite, Role), `controller/FacadeController.java`, `static/index.html` |
+| №1 | [`lab1`](lab1) | 8091 | REST API, паттерн «Одиночка» | `view/api/ReaderAPI.java`, `view/api/CreatorAPI.java`, `view/api/SingletonAPI.java` |
+| №2 | [`lab2`](lab2) | 8092 | DTO и JSON-ответы | `view/api/dto/*`, контроллеры Reader/Creator, возвращающие DTO |
+| №3 | [`lab3`](lab3) | 8093 | Бизнес-объекты, «Фасад», статика | `controller/news/NewsBO.java`, `controller/category/CategoryBO.java`, `controller/FacadeController.java`, `static/index.html` |
 
 ## Быстрый запуск
 
@@ -60,29 +60,12 @@ cd lab3 && mvn clean package && java -jar target/news-service-lab3.jar
 10. **Готовые файлы `requests.http`** в каждой работе и README с описанием
     проверки.
 
-## Синхронизация с UML-диаграммами
-
-После сверки с диаграммами из `docs/` (Use-Case, классы, состояния,
-коммуникации, компоненты, развёртывание) в работы добавлено:
-
-* **AdminAPI** во все три работы - актёр «Администратор», use case
-  «Администрирование», класс `Admin` (`blockUser`/`assignRole`/`moderateComment`);
-* **полная предметная модель в ЛР3**: интерфейсы `IAuthorizable`,
-  `ICommentable`, `IPublishable`; иерархия `Person → Guest/User →
-  Journalist/Admin`; сущности `News` (со статусами `DRAFT/PUBLISHED/EDITED/
-  ARCHIVED/DELETED`), `Comment`, `Category`, `Tag`, `Favorite`, `Role`;
-* **статусы новости** и endpoints `/creator/news/{id}/publish`, `/unpublish`, `/archive`;
-* **регистрация/вход** (`/reader/auth/register`, `/reader/auth/login`) -
-  use case «Регистрация / Авторизация».
-
-Соответствие классов кода классам UML описано в [`lab3/README.md`](lab3/README.md).
-
 ## Проверенные сценарии
 
 * ЛР1: все GET-методы (200), POST/PUT/DELETE (200), запуск на Java 8 и JDK 26.
 * ЛР2: GET возвращают JSON-структуры; POST/PUT принимают JSON-тело и возвращают
   DTO; ошибки - 400 с `ActionStatusDTO`.
 * ЛР3: лента, новость по id, новости за неделю, поиск по тексту и по категории,
-  фильтр по региону, категории, закладки, комментарии (создание/изменение/ответ/
-  удаление), создание/изменение/удаление новости, теги, медиа;
-  статика `/static/index.html` и главная страница `/`.
+  фильтр по региону, категории, комментарии (создание/изменение/удаление),
+  создание/изменение/удаление новости; статика `/static/index.html` и главная
+  страница `/`.

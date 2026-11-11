@@ -139,13 +139,6 @@ public class ReaderAPI {
         return Response.ok(new CategoryListDTO(categories)).build();
     }
 
-    /** Добавить новость в закладки. POST /reader/news/1/bookmark */
-    @POST
-    @Path("/news/{id}/bookmark")
-    public Response addBookmark(@PathParam("id") Long id) {
-        return Response.ok(ActionStatusDTO.ok("Новость " + id + " добавлена в закладки")).build();
-    }
-
     /** Оставить комментарий. POST /reader/comments */
     @POST
     @Path("/comments")
@@ -167,8 +160,7 @@ public class ReaderAPI {
                 request.getNewsId(),
                 isBlank(request.getAuthor()) ? "Аноним" : request.getAuthor(),
                 request.getText(),
-                "2026-11-10 12:00",
-                null
+                "2026-11-10 12:00"
         );
 
         return Response.status(Response.Status.CREATED).entity(comment).build();
@@ -186,7 +178,7 @@ public class ReaderAPI {
         }
 
         CommentDTO comment = new CommentDTO(
-                id, 1L, "Иван", request.getText(), "2026-11-10 12:05", null);
+                id, 1L, "Иван", request.getText(), "2026-11-10 12:05");
 
         return Response.ok(comment).build();
     }

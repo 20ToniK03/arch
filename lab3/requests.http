@@ -1,16 +1,13 @@
-### Лабораторная работа №3 - BO по UML + Facade + AdminAPI + статика
+### Лабораторная работа №3 - BO + Facade (минимум по ТЗ)
 ### Запустите lab3/src/main/java/view/WebAppServer.java (порт 8093).
 ### Клиентский интерфейс: http://localhost:8093/
 @host = http://localhost:8093
 
-### Все новости (опубликованные, черновики скрыты)
+### Все новости (NewsListDTO)
 GET {{host}}/reader/news/all
 
-### Одна новость (NewsItemDTO со статусом)
+### Одна новость (NewsItemDTO)
 GET {{host}}/reader/news/1
-
-### Черновик (id=7) скрыт от читателя - ожидается 404
-GET {{host}}/reader/news/7
 
 ### Новости за неделю
 GET {{host}}/reader/news/last_week
@@ -26,24 +23,6 @@ GET {{host}}/reader/news/region?region=Москва
 
 ### Категории
 GET {{host}}/reader/categories
-
-### Регистрация (Guest.register) - 201
-POST {{host}}/reader/auth/register?name=Пётр&email=petr@example.com&password=pass
-
-### Вход (IAuthorizable.login) - 200
-POST {{host}}/reader/auth/login?login=maria@example.com&password=pass
-
-### Вход с неверным паролем - 401
-POST {{host}}/reader/auth/login?login=maria@example.com&password=wrong
-
-### Добавить в избранное (userId по умолчанию 2)
-POST {{host}}/reader/news/1/bookmark?userId=2
-
-### Список избранного пользователя
-GET {{host}}/reader/favorites?userId=2
-
-### Убрать из избранного
-DELETE {{host}}/reader/news/1/bookmark?userId=2
 
 ### Комментарий к новости
 POST {{host}}/reader/comments
@@ -66,23 +45,23 @@ Content-Type: application/json
 ### Удалить комментарий
 DELETE {{host}}/reader/comments/1
 
-### ===== API журналиста =====
+### ===== API создателя =====
 
-### Создать новость (создаётся и сразу публикуется)
+### Создать новость
 POST {{host}}/creator/news
 Content-Type: application/json
 
 {
   "title": "Проверка лабораторной работы",
   "annotation": "Новость создана через API",
-  "text": "Полный текст новой новости, созданной через фасад.",
+  "text": "Полный текст новой новости.",
   "categoryId": 1,
-  "author": "Мария Соколова",
+  "author": "Редакция",
   "region": "Москва",
   "tags": ["тест", "api"]
 }
 
-### Изменить новость (статус -> EDITED)
+### Изменить новость
 PUT {{host}}/creator/news/1
 Content-Type: application/json
 
@@ -91,37 +70,5 @@ Content-Type: application/json
   "text": "Обновлённый полный текст."
 }
 
-### Опубликовать новость (Draft -> Published)
-POST {{host}}/creator/news/7/publish
-
-### Снять с публикации (Published -> Draft)
-POST {{host}}/creator/news/7/unpublish
-
-### Перевести в архив (Published -> Archived)
-POST {{host}}/creator/news/6/archive
-
-### Добавить тег (News 0..* -- 0..* Tag)
-POST {{host}}/creator/news/1/tags?tag=java
-
-### Прикрепить медиафайл
-POST {{host}}/creator/news/1/media?url=https://example.com/photo.jpg
-
-### Удалить новость (мягкое удаление, статус DELETED)
+### Удалить новость
 DELETE {{host}}/creator/news/1
-
-### ===== API администратора =====
-
-### Список пользователей (UserListDTO)
-GET {{host}}/admin/users
-
-### Список ролей (RoleListDTO)
-GET {{host}}/admin/roles
-
-### Заблокировать пользователя
-POST {{host}}/admin/users/2/block
-
-### Назначить роль
-PUT {{host}}/admin/users/2/role?role=ADMIN
-
-### Модерировать комментарий (approve / reject)
-POST {{host}}/admin/comments/1/moderate?action=approve
